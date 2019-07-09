@@ -1,0 +1,35 @@
+.body .detail .pic{
+    width: 20%;
+    height: 60vh;
+    float: left;
+    margin-left: 28%;
+}
+.body .detail .pic img{
+    width: 100%;
+    height: 100%;
+}
+
+.body .detail{
+    width: 100%;
+    height: 100vh;
+    background-color: #ADADAD;
+    padding-top: 10%;
+}
+.body .detail table{
+    width: 20%;
+    float: left;
+    margin-left: 3%;
+    font-size: 120%;
+}
+.body .detail table td{
+    padding-top: 3%;
+    padding-bottom: 4%;
+}
+.body .detail table .txt{
+    width: 50%;
+    text-align: right;
+}
+.body .detail table .info{
+    width: 50%;
+    text-align: center;
+}

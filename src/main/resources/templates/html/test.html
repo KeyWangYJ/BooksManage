@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+<body>
+    <table id="test">
+
+    </table>
+</body>
+<script>
+    $(document).ready(function () {
+        $.post("getUser",{},function(data){
+            if (data.length!=0){
+                for (var i in data){
+                    var name = data[i].username;
+                    var pass = data[i].password;
+                    var str = "<tr> <td>" + name + "</td><td>" + pass + "</td></tr>";
+                    $("#test").append(str);
+                }
+            }
+        })
+    })
+</script>
+</html>

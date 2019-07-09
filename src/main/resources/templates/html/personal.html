@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>图书借阅管理系统</title>
+    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="../layui/layui.js"></script>
+    <link rel="stylesheet" type="text/css" href="../layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="../css/index.css">
+    <link rel="stylesheet" type="text/css" href="../css/personal.css">
+</head>
+<body>
+<div class="layui-side layui-bg-black">
+    <div class="layui-side-scroll">
+        <div title="点击缩放" class="kit-side-fold" style="margin-left: 25%;margin-top: 5%;margin-bottom: 5%;"><i class="fa fa-navicon fa-lg" aria-hidden="true" style="margin-right: 5%;"></i><span>导航栏</span></div>
+        <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+        <ul class="layui-nav layui-nav-tree"  lay-filter="test" lay-shrink="all">
+            <li class="layui-nav-item">
+                <a class="layui-anim layui-anim-up" href="/index"><i class="fa fa-home fa-lg"></i> <span >首页</span></a>
+            </li>
+            <li class="layui-nav-item layui-nav-itemed">
+                <a class="layui-anim layui-anim-up" href="javascript:;"><i class="fa fa-user-o fa-lg"></i> <span >个人中心</span></a>
+                <dl class="layui-nav-child">
+                    <dd class="layui-anim layui-anim-scale layui-this"><a href="/personal"><i class="fa fa-user-circle fa-lg"></i> <span >个人信息</span></a></dd>
+                    <dd class="layui-anim layui-anim-scale"><a href="/lendsList"><i class="fa fa-book fa-lg"></i> <span >借阅记录</span></a></dd>
+                </dl>
+            </li>
+        </ul>
+        <shiro:user>
+            <div class="" id="logout_user" style="margin-left: 20px;margin-top: 10px;">
+                <a href="/logout" style="color: white;text-decoration: none;font-size: 15px;"><i class="layui-icon layui-icon-close-fill" style="font-size: 20px;margin-left: -2px;"></i> <span>退出登录</span></a>
+            </div>
+        </shiro:user>
+    </div>
+</div>
+<div class="body">
+    <div class="detail">
+        <table>
+            <tr>
+                <td class="txt">用户名：</td>
+                <td class="info username"></td>
+                <td class="button"><button class="layui-btn" data-toggle="modal" data-target="#editUserNameModal">编辑</button></td>
+            </tr>
+            <tr>
+                <td class="txt">真实姓名：</td>
+                <td class="info readername"></td>
+            </tr>
+            <tr>
+                <td class="txt">身份证号：</td>
+                <td class="info identitycode"></td>
+            </tr>
+            <tr>
+                <td class="txt">手机号：</td>
+                <td class="info phonenum"></td>
+                <td class="button"><button class="layui-btn" data-toggle="modal" data-target="#editPhoneNumModal">更换手机号</button></td>
+            </tr>
+            <tr>
+                <td class="txt">邮 箱：</td>
+                <td class="info email"></td>
+                <td class="button"><button class="layui-btn" data-toggle="modal" data-target="#editEmailModal">更换邮箱</button></td>
+            </tr>
+            <tr>
+                <td class="txt">个人描述：</td>
+                <td class="info description"></td>
+                <td class="button"><button class="layui-btn" data-toggle="modal" data-target="#editDescriptionModal">编辑</button></td>
+            </tr>
+        </table>
+        <div>
+            <button class="layui-btn" style="margin-left: 45%;margin-top: 1%;" data-toggle="modal" data-target="#editPasswordModal">修改密码</button>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="editUserNameModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="editUserName">编辑用户名</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" style="margin-top: 30px;"
+                      method="post">
+                    <div class="form-group">
+                        <label for="username" class="col-sm-2 control-label">用户名</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="username" placeholder="请输入用户名" value=""/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button id="submitUserName" type="button" class="btn btn-primary" onclick="submitUserName()">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editPhoneNumModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="editPhoneNum">更换手机号</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" style="margin-top: 30px;"
+                      method="post">
+                    <div class="form-group">
+                        <label for="phonenum" class="col-sm-2 control-label">手机号</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="phonenum" placeholder="请输入手机号" onkeyup="checkphone()"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <span id="phoneError"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="verifyCode" class="col-sm-2 control-label">验证码</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="verifyCode" placeholder="请输入验证码"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="button" name="getCode" class="btn btn-primary" id="getCode" value="获取验证码">
+                        </div>
+                        <div class="col-sm-3">
+                            <span id="codeError"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button id="submitPhoneNum" type="submit" class="btn btn-primary" onclick="submitPhoneNum()">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editEmailModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="editEmail">更换邮箱</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" style="margin-top: 30px;"
+                      method="post">
+                    <div class="form-group">
+                        <label for="email" class="col-sm-2 control-label">邮箱</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="email" placeholder="请输入邮箱" onkeyup="checkemail()"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <span id="emailError"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button id="submitEmail" type="button" class="btn btn-primary" onclick="submitEmail()">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editDescriptionModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="editDescription">编辑个人描述</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" style="margin-top: 30px;"
+                      method="post">
+                    <div class="form-group">
+                        <label for="description" class="col-sm-2 control-label">个人描述</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="description" placeholder="请输入个人描述" value=""/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button id="submitDescription" type="button" class="btn btn-primary" onclick="submitDescription()">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editPasswordModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="LendBook">修改密码</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" method="post">
+                    <div class="form-group">
+                        <label for="newPassword" class="col-sm-2 control-label">新密码</label>
+                        <div class="col-sm-5">
+                            <input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="请输入密码">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm" class="col-sm-2 control-label">确认密码</label>
+                        <div class="col-sm-5">
+                            <input type="password" id="confirm" name="confirm" class="form-control" placeholder="请再次输入密码">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="col-sm-2 control-label">手机号</label>
+                        <div class="col-sm-5">
+                            <input type="text" name="phone" class="form-control" id="phone" placeholder="请输入手机号"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <span id="phoneError2"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="code" class="col-sm-2 control-label">验证码</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="code" placeholder="请输入验证码"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="button" name="getCode" class="btn btn-primary" id="getCode2" value="获取验证码">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button id="editPassword" type="button" class="btn btn-primary" onclick="setNewPassword()">提交</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use('element', function(){
+        var element = layui.element;
+    });
+
+    var isShow = true;  //定义一个标志位
+    $('.kit-side-fold').click(function(){
+        //选择出所有的span，并判断是不是hidden
+        $('.layui-side-scroll span').each(function(){
+            if($(this).is(':hidden')){
+                $(this).show();
+            }else{
+                $(this).hide();
+            }
+        });
+        //判断isshow的状态
+        if(isShow){
+            $('.layui-side.layui-bg-black').css('width', '4vw'); //设置宽度
+            $('.kit-side-fold').css('margin-left', '10%');  //修改图标的位置
+            //将footer和body的宽度修改
+            $('.layui-body').css('left', 60+'px');
+            $('.layui-footer').css('left', 60+'px');
+            $('.body').css('width', '96vw');
+            //将二级导航栏隐藏
+            $('dd span').each(function(){
+                $(this).hide();
+            });
+            //修改标志位
+            isShow =false;
+        }else{
+            $('.layui-side.layui-bg-black').css('width', '15vw');
+            $('.kit-side-fold').css('margin-left', '25%');
+            $('.layui-body').css('left', 200+'px');
+            $('.layui-footer').css('left', 200+'px');
+            $('.body').css('width', '85vw');
+            $('dd span').each(function(){
+                $(this).show();
+            });
+            isShow =true;
+        }
+    });
+
+    $(document).ready(function(){
+        $.post("/getPersonal",{},function(data){
+            $(".username").text(data.username);
+            $(".readername").text(data.readername);
+            $(".identitycode").text(data.identitycode);
+            $(".phonenum").text(data.phonenum);
+            $(".email").text(data.email);
+            $(".description").text(data.description);
+        });
+    });
+</script>
+<script>
+    var ordertime=30;  //设置再次发送验证码等待时间
+    var timeleft=ordertime;
+    var btn=$("#getCode");
+    var phone=$("#phonenum");
+    var ordertime2=30;  //设置再次发送验证码等待时间
+    var timeleft2=ordertime2;
+    var btn2=$("#getCode2");
+    var phone2=$("#phone");
+    var reg = /^1[0-9]{10}$/;  //电话号码的正则匹配式
+    btn.attr("disabled",true);
+    btn2.attr("disabled",true);
+
+    //短信登录验证手机号
+    phone.keyup(function(){
+        var phonenum = phone.val();
+        if (reg.test(phonenum)){
+            $.post("/checkPhone",{"phonenum":phonenum},function(data){
+                if (data){
+                    if (timeleft == 30) {
+                        btn.removeAttr("disabled")
+                    }
+                }else{
+                    $("#phoneError").text("该手机号未注册")
+                }
+            });
+        }
+        else{
+            btn.attr("disabled",true)
+        }
+    });
+
+    //计时函数
+    function timeCount(){
+        timeleft-=1
+        if (timeleft>0){
+            btn.val(timeleft+" 秒后重发");
+            setTimeout(timeCount,1000)
+        }
+        else {
+            btn.val("重新发送");
+            timeleft=ordertime   //重置等待时间
+            btn.removeAttr("disabled");
+        }
+    }
+
+    //事件处理函数
+    btn.on("click",function(){
+        $(this).attr("disabled",true); //防止多次点击
+        var phonenum = phone.val();
+        //此处可添加 ajax请求 向后台发送 获取验证码请求
+        $.ajax({
+            //要用post方式
+            type: "Post",
+            //方法所在页面和方法名
+            url: "/sendSMS",
+            data: {"phonenum":phonenum},
+            success : function(data){
+                alert("短信发送成功");
+            },
+            error:function(){
+                alert("短信发送失败");
+            }
+        });
+        timeCount(this);
+    });
+
+    //修改密码验证手机号
+    phone2.keyup(function(){
+        var phonenum = phone2.val();
+        if (reg.test(phonenum)){
+            $.post("/checkPhone",{"phonenum":phonenum},function(data){
+                if (data){
+                    if (timeleft2 == 30) {
+                        btn2.removeAttr("disabled")
+                    }
+                }else{
+                    $("#phoneError2").text("该手机号未注册")
+                }
+            });
+        }
+        else{
+            btn2.attr("disabled",true)
+        }
+    });
+    //计时函数
+    function timeCount2(){
+        timeleft2 = timeleft2 - 1;
+        if (timeleft2>0){
+            btn2.val(timeleft2+" 秒后重发");
+            setTimeout(timeCount2,1000)
+        }
+        else {
+            btn2.val("重新发送");
+            timeleft2=ordertime2;   //重置等待时间
+            btn2.removeAttr("disabled");
+        }
+    }
+
+    //事件处理函数
+    btn2.on("click",function(){
+        $(this).attr("disabled",true); //防止多次点击
+        var phonenum = phone2.val();
+        //此处可添加 ajax请求 向后台发送 获取验证码请求
+        $.ajax({
+            //要用post方式
+            type: "Post",
+            //方法所在页面和方法名
+            url: "/sendSMS",
+            data: {"phonenum":phonenum},
+            success : function(data){
+                alert("短信发送成功");
+            },
+            error:function(){
+                alert("短信发送失败");
+            }
+        });
+        timeCount2(this);
+    });
+
+    //验证邮箱
+    function checkemail(){
+        var regex = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+        var value = $("#email").val();
+        var msg = "";
+
+        if (!value) {
+            msg = "邮箱必须填写";
+            $("#emailError").text(msg);
+            return false;
+        }
+        else if (!regex.test(value)) {
+            msg = "邮箱格式不正确";
+            $("#emailError").text(msg);
+            return false;
+        }
+        else if (value){
+            $.post("/checkEmail",{"email":value},function(data){
+                if (data){
+                    msg = "该邮箱已注册";
+                    $("#emailError").text(msg);
+                }else{
+                    msg = "";
+                    $("#emailError").text(msg);
+                }
+            });
+            var s = $("#emailError").text();;
+            if (s == "该邮箱已注册") {
+                return false;
+            }else {
+                return true;
+            }
+        }else {
+            $("#emailError").text(msg);
+            return true;
+        }
+    }
+
+    function submitUserName() {
+        var username = $("#username").val();
+        $.post("/submitUserName",{"username":username},function(res){
+            alert("修改成功!");
+            window.location = "/personal";
+        })
+    }
+
+    function submitPhoneNum() {
+        var checked = checkphone();
+        if (checked){
+            var phonenum = $("#phonenum").val();
+            var code = $("#verifyCode").val();
+            $.post("/submitPhoneNum",{"phonenum":phonenum,"code":code},function(res){
+                if(res){
+                    alert("修改成功!");
+                    window.location = "/personal";
+                }else{
+                    alert("验证码错误");
+                }
+            })
+        }else{
+            return false;
+        }
+    }
+
+    function submitEmail() {
+        var emailed = checkemail();
+        if (emailed){
+            var email = $("#email").val();
+            $.post("/submitEmail",{"email":email},function(res){
+                alert("修改成功!");
+                window.location = "/personal";
+            })
+        }
+    }
+
+    function submitDescription() {
+        var description = $("#description").val();
+        $.post("/submitDescription",{"description":description},function(res){
+            alert("修改成功!");
+            window.location = "/personal";
+        })
+    }
+
+    function setNewPassword() {
+        var newPassword = $("#newPassword").val();
+        var phone = $("#phone").val();
+        var code = $("#code").val();
+        $.post("/editUserPassword",{"newPassword":newPassword,"phone":phone,"code":code},function(data){
+            if (data == "0"){
+                alert("验证码错误");
+            }else if (data == "1") {
+                alert("修改成功");
+                window.location .reload();
+            }
+        });
+    }
+</script>
+</body>
+</html>

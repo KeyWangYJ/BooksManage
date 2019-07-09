@@ -1,0 +1,31 @@
+.body .detail{
+    width: 100%;
+    height: 100vh;
+    background-color: #ADADAD;
+}
+.body .detail table{
+    margin-left: 22%;
+    margin-top: 3%;
+    width: 50%;
+    float: left;
+    font-size: 120%;
+}
+.body .detail table td{
+    padding-top: 5%;
+    padding-bottom: 4%;
+    word-wrap:break-word;
+    word-break:break-all;
+}
+.body .detail table .txt{
+    width: 30%;
+    text-align: right;
+}
+.body .detail table .info{
+    width: 55%;
+    text-align: center;
+}
+.body .detail table .button{
+    padding-left: 10px;
+    width: 15%;
+    text-align: left;
+}

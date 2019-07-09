@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>图书借阅管理系统-借阅记录</title>
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript" src="../easyUI/jquery.min.js"></script>
+    <script type="text/javascript" src="../easyUI/jquery.easyui.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="../layui/layui.js"></script>
+    <link rel="stylesheet" type="text/css" href="../easyUI/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../easyUI/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="../layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="../css/index.css">
+</head>
+<body>
+<div class="layui-side layui-bg-black">
+    <div class="layui-side-scroll">
+        <div title="点击缩放" class="kit-side-fold" style="margin-left: 25%;margin-top: 5%;margin-bottom: 5%;"><i class="fa fa-navicon fa-lg" aria-hidden="true" style="margin-right: 5%;"></i><span>导航栏</span></div>
+        <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+        <ul class="layui-nav layui-nav-tree"  lay-filter="test" lay-shrink="all">
+            <li class="layui-nav-item">
+                <a class="layui-anim layui-anim-up" href="/index"><i class="fa fa-home fa-lg"></i> <span >首页</span></a>
+            </li>
+            <li class="layui-nav-item layui-nav-itemed">
+                <a class="layui-anim layui-anim-up" href="javascript:;"><i class="fa fa-user-o fa-lg"></i> <span >个人中心</span></a>
+                <dl class="layui-nav-child">
+                    <dd class="layui-anim layui-anim-scale"><a href="/personal"><i class="fa fa-user-circle fa-lg"></i> <span >个人信息</span></a></dd>
+                    <dd class="layui-anim layui-anim-scale layui-this"><a href="/lendsList"><i class="fa fa-book fa-lg"></i> <span >借阅记录</span></a></dd>
+                </dl>
+            </li>
+        </ul>
+        <shiro:user>
+            <div class="" id="logout_user" style="margin-left: 20px;margin-top: 10px;">
+                <a href="/logout" style="color: white;text-decoration: none;font-size: 15px;"><i class="layui-icon layui-icon-close-fill" style="font-size: 20px;margin-left: -2px;"></i> <span>退出登录</span></a>
+            </div>
+        </shiro:user>
+    </div>
+</div>
+<div class="body" style="height: 100vh;">
+    <table id="list" toolbar="#lend_tool">
+
+    </table>
+</div>
+<div id="lend_tool">
+    <input type="text" id="searchStr" placeholder="请输入关键字" style="margin-left: 30%;width: 300px;height: 40px;">
+    <button class="layui-btn searchBtn" id="search">搜索</button>
+</div>
+<script>
+    layui.use('element', function(){
+        var element = layui.element;
+    });
+
+    var isShow = true;  //定义一个标志位
+    $('.kit-side-fold').click(function(){
+        //选择出所有的span，并判断是不是hidden
+        $('.layui-side-scroll span').each(function(){
+            if($(this).is(':hidden')){
+                $(this).show();
+            }else{
+                $(this).hide();
+            }
+        });
+        //判断isshow的状态
+        if(isShow){
+            $('.layui-side.layui-bg-black').css('width', '4vw'); //设置宽度
+            $('.kit-side-fold').css('margin-left', '10%');  //修改图标的位置
+            //将footer和body的宽度修改
+            $('.layui-body').css('left', 60+'px');
+            $('.layui-footer').css('left', 60+'px');
+            $('.body').css('width', '96vw');
+            //将二级导航栏隐藏
+            $('dd span').each(function(){
+                $(this).hide();
+            });
+            //修改标志位
+            isShow =false;
+        }else{
+            $('.layui-side.layui-bg-black').css('width', '15vw');
+            $('.kit-side-fold').css('margin-left', '25%');
+            $('.layui-body').css('left', 200+'px');
+            $('.layui-footer').css('left', 200+'px');
+            $('.body').css('width', '85vw');
+            $('dd span').each(function(){
+                $(this).show();
+            });
+            isShow =true;
+        }
+    });
+    $('#list').datagrid({
+        url:'/getUserLends',
+        pagination:true,
+        pageSize:10,
+        pageList:[10,15,20],
+        singleSelect:true,
+        fit:true,
+        nowrap:false,
+        columns:[ [
+            {field:'lendId',title:'借阅记录编号', width:100, align:'center'},
+            {field:'bookId',title:'图书编号', width:100, align:'center'},
+            {field:'bookName',title:'书名', width:100, align:'center'},
+            {field:'outTime',title:'借出时间', width:150, align:'center'},
+            {field:'deadline',title:'截止归还时间', width:150, align:'center',
+                styler:function (value,row,index) {
+                    if (row.returnStatus == 0){
+                        var now = new Date();
+                        var deadline = new Date(value);
+                        var d = deadline.getTime() - now.getTime();
+                        var result = Math.floor(d/(24*3600*1000));
+                        if (result < 7) {
+                            return 'background-color:#ffee00;color:red;';
+                        }
+                    }
+                }},
+            {field:'returnStatus',title:'归还状态', width:100, align:'center',
+                formatter:function (value,row,index) {
+                    switch (value) {
+                        case 0:
+                            return "未归还";
+                            break;
+                        case 1:
+                            return "已归还";
+                            break;
+                    }
+                }},
+            {field:'returnTime',title:'归还时间', width:200, align:'center',
+                formatter:function (value,row,index) {
+                    if (value == null){
+                        var now = new Date();
+                        var deadline = new Date(row.deadline);
+                        var d = deadline.getTime() - now.getTime();
+                        var result = Math.floor(d/(24*3600*1000));
+                        if (result < 7 && result > 0) {
+                            return '<h4 style="color: red;">请尽快还书</h4>';
+                        } else if (result < 0){
+                            return '<h3 style="color: red;">超出期限！请立刻还书</h3>';
+                        }
+                    }else {
+                        return value;
+                    }
+                }},
+            {field:'operation',title:'操作', width:150, align:'center',
+                formatter:function(value,row,index){
+                    var c = '<input type="button" name="deleteLend" class="layui-btn layui-btn-danger layui-btn-xs deleteLend" value="删除" onclick="deleteLend(' + row.lendId + ')">';
+                    if (row.returnStatus == 1) {
+                        return c;
+                    }
+                }
+            }
+        ] ]
+    });
+    var s = $('#list').datagrid('getPager');
+    $(s).pagination({
+        beforePageText: '第',
+        afterPageText: '页    共 {pages} 页',
+        displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录'
+    });
+    $('#list').datagrid("resize");
+</script>
+<script>
+    function deleteLend(id) {
+        if(confirm('您确定要删除该借阅记录吗?')) {
+            $.post("/deleteLend",{"id":id},function(data){
+                if (data){
+                    alert("借阅记录删除成功！");
+                    $("#list").datagrid('reload');
+                } else {
+                    alert("借阅记录删除失败")
+                }
+            });
+        }
+    }
+
+    $("#search").on("click",function () {
+        var BeforeVal = $("#searchStr").val();//获取搜索框的值
+        // 先后去除空格和非数字字母的字符
+        var searchVal = BeforeVal.replace(/\s/g,"").replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g,"");
+        $("#list").datagrid('load', {
+            searchVal: searchVal
+        });
+    })
+</script>
+</body>
+</html>

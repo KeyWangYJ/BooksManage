@@ -1,0 +1,152 @@
+
+*{
+	margin: 0;
+	padding: 0;
+}
+
+body{
+	background: url(../images/loginBackground.jpg);
+	background-size: cover;
+}
+.top{
+   margin: 10px 30px;
+}
+.top ul li{
+   list-style: none;
+   float: left;
+   border:solid 1px gray;
+   margin-left: 20px;
+   width: 100px;
+   height: 50px;
+   text-align: center;
+   line-height: 50px;
+   font-size: 18px;
+   background-color: #999;
+   opacity: 0.6;
+}
+.top ul li a{
+   text-decoration: none;
+   color: white;
+}
+.top ul li:hover{
+	background-color: #666;
+}
+
+.box{
+	width: 400px;
+	height: 400px;
+	position: absolute;
+	top: 17%;
+	left: 35%;
+	background-color: white;
+	background-color:rgba(0,0,0,0.5);
+}
+.header{
+	border-bottom:solid 1px #eee;
+	height: 60px;
+	margin: 5px 0;
+}
+#myTab{
+	list-style: none;
+	border-radius: 0;
+	border:0;
+}
+#myTab li{
+	width: 50%;
+	text-align: center;
+}
+.header ul li a{
+	font-size: 16px;
+}
+
+#myTab li a:hover,#myTab li.active a{
+	background-color: #6495ED;
+}
+/*登录 */
+#login{
+	margin: auto;
+}
+#username_txt{
+	width: 90%;
+	height: 39px;
+	margin: auto;
+	border:1px solid #dddddd;
+	line-height:32px;
+	color:#b1a9a9;
+	margin-top: 20px;
+	margin-bottom:20px;
+}
+#password_txt{
+    width: 90%;
+	height: 39px;
+	margin: auto;
+	border:1px solid #dddddd;
+	line-height:32px;
+	color:#b1a9a9;
+	margin-bottom:20px;
+}
+#phonenum{
+	width: 90%;
+	height: 39px;
+	margin: auto;
+	border:1px solid #dddddd;
+	line-height:32px;
+	color:#b1a9a9;
+	margin-bottom:20px;
+}
+#autoLogin{
+	width: 90%;
+	height: 50px;
+	margin: auto;
+}
+
+#selectId{
+	width: 90%;
+	margin-left: 5%;
+}
+
+#autoLogin{
+	margin-top: 5%;
+}
+#autoLogin a{
+	margin-left: 30px;
+}
+#loginBtn{
+	width: 90%;
+	height: 40px;
+	margin-left: 20px;
+}
+
+.register{
+	width: 90%;
+	margin: auto;
+	margin-top: 15px;
+}
+
+/*短信登录 */
+#verifyCode{
+	width: 180px;
+	height: 35px;
+	border:solid 1px #dddddd;
+	float: left;
+	margin-left: 5%;
+}
+#getCode{
+	float: left;
+	margin-left: 20%;
+}
+#txtLoginBtn{
+	width: 90%;
+	height: 40px;
+	margin-top: 5%;
+	margin-left: 20px;
+}
+
+.errorTips{
+	display: block;
+	width: 90%;
+	height: 23px;
+	margin:auto;
+	margin-top: -15px;
+	color: red;
+}

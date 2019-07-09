@@ -1,0 +1,86 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    background: url(../images/registerBackground.jpg);
+    background-size: cover;
+}
+.top{
+    margin: 10px 30px;
+}
+.top ul li{
+    list-style: none;
+    float: left;
+    border:solid 1px gray;
+    margin-left: 20px;
+    width: 100px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    font-size: 18px;
+    background-color: #999;
+    opacity: 0.6;
+}
+.top ul li a{
+    text-decoration: none;
+    color: white;
+}
+.top ul li:hover{
+    background-color: #666;
+}
+
+.title{
+    position: absolute;
+    top: 15%;
+    left: 40%;
+}
+
+.box{
+    width: 600px;
+    height: 400px;
+    position: absolute;
+    top: 20%;
+    left: 30%;
+    padding-top: 5%;
+    text-align: center;
+    margin: auto;
+}
+.box table tr{
+    padding-top: 20%;
+    height: 60px;
+}
+.box .txt{
+    width: 15%;
+    color: white;
+}
+.box .input{
+    width: 60%;
+    line-height: 30px;
+    margin-top: 10%;
+    margin-bottom:10%;
+}
+.box .errorTips{
+    width: 25%;
+    color: red;
+}
+.box #username,#password,#repassword,#readername,#identitycode,#email,#phone{
+    width: 90%;
+    border-radius: 10px;
+}
+#verifyCode{
+    width: 160px;
+    border-radius: 10px;
+    float: left;
+    margin-left: 5%;
+}
+#getCode{
+    float: left;
+    margin-left: 10%;
+}
+
+#submit{
+    margin-top: 5%;
+    width: 100px;
+    margin-left: -15%;
+}

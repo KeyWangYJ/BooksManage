@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>图书借阅管理系统登录注册</title>
+    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/login.css">
+    <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/jquery.validate.min.js"></script>
+
+</head>
+<body>
+<div class="top">
+    <ul>
+        <li><a href="/index">返回首页</a></li>
+        <li><a href="#">联系我们</a></li>
+    </ul>
+</div>
+
+
+<div class="box">
+    <div class="header">
+        <ul id="myTab" class="nav nav-tabs">
+            <li class="active"><a href="#login" data-toggle="tab" style="color: white;">登录</a></li>
+            <li><a href="#txtLogin" data-toggle="tab" style="color: white;">短信登录</a></li>
+        </ul>
+    </div>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade in active" id="login">
+            <form id="loginForm" action="#" method="post">
+                <input type="text" id="username_txt" name="username" class="form-control" placeholder="请输入用户名">
+                <span class="errorTips" style="color: white;"></span>
+                <input type="password" id="password_txt" name="password" class="form-control" placeholder="请输入密码">
+                <span class="errorTips" style="color: white;"></span>
+                <select id="selectId" class="form-control form-white">
+                    <option value="1" selected="selected">普通用户登录</option>
+                    <option value="2">管理员登录</option>
+                </select>
+                <div id="autoLogin">
+                    <!--<input name="" type="checkbox" value="" checked><font color="white">下次自动登录</font>-->
+                    <a href="#" style="margin-left:70%;color: white;" data-toggle="modal" data-target="#editPasswordModal"><strong> 忘记密码？</strong></a>
+                </div>
+                <button type="submit" class="btn btn-primary pwdLogin" id="loginBtn">登录</button>
+            <div class="register">
+                <p style="color: white">还没有账号？<a href="/register"><strong style="color: white"> 立即注册</strong></a></p>
+            </div>
+            </form>
+        </div>
+
+        <!--短信登录 -->
+        <div class="tab-pane fade" id="txtLogin">
+                <input type="text" id="phonenum" name="phonenum" class="form-control" placeholder="请输入手机号码">
+                <span class="errorTips" id="phoneError" style="color: white;"></span>
+                <div class="verify">
+                    <input type="txt" class="form-control" id="verifyCode" name="verifyCode" placeholder="请输入验证码">
+                    <span><input type="button" name="getCode" class="btn btn-primary" id="getCode" value="获取验证码"></span>
+                </div>
+                <span class="errorTips" style="color: white;"></span>
+                <button type="button" class="btn btn-primary txtLogin" id="txtLoginBtn" onclick="phoneLogin()">登录</button>
+            <div class="register">
+                <p style="color: white">还没有账号？<a href="/register"><strong style="color: white"> 立即注册</strong></a></p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editPasswordModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="LendBook">修改密码</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" method="post">
+                    <div class="form-group">
+                        <label for="newPassword" class="col-sm-2 control-label">新密码</label>
+                        <div class="col-sm-5">
+                            <input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="请输入密码">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm" class="col-sm-2 control-label">确认密码</label>
+                        <div class="col-sm-5">
+                            <input type="password" id="confirm" name="confirm" class="form-control" placeholder="请再次输入密码">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="col-sm-2 control-label">手机号</label>
+                        <div class="col-sm-5">
+                            <input type="text" name="phone" class="form-control" id="phone" placeholder="请输入手机号"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <span id="phoneError2"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="code" class="col-sm-2 control-label">验证码</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="code" placeholder="请输入验证码"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="button" name="getCode" class="btn btn-primary" id="getCode2" value="获取验证码">
+                        </div>
+                        <div class="col-sm-3">
+                            <span id="codeError"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button id="editPassword" type="button" class="btn btn-primary" onclick="setNewPassword()">提交</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--登录验证 -->
+<script type="text/javascript">
+    $("#myform-login").validate({
+        rules:{
+            username_txt:{
+                required:true,
+                minlength:2,
+                maxlength:10
+            },
+            password_txt:{
+                required:true,
+                minlength:2,
+                maxlength:16
+            }
+        },
+        messages:{
+            username_txt:{
+                required:"用户名为必填项",
+                minlength:"最小长度为2",
+                maxlength:"最大长度为10"
+            },
+            password_txt:{
+                required:"密码为必填项",
+                minlength:"最小长度为2",
+                maxlength:"最大长度为16"
+            }
+        },
+        errorPlacement: function(error, element) { //错误信息位置设置方法
+            error.appendTo( element.next() ); //这里的element是录入数据的对象
+        }
+    });
+    $("#myform-duanxin").validate({
+        rules:{
+            phonenum:{
+                required:true,
+                minlength:11,
+                maxlength:11
+            },
+            txt_yzm:{
+                required:true,
+                minlength:6,
+                maxlength:6
+            }
+        },
+        messages:{
+            phonenum:{
+                required:"请填写手机号",
+                minlength:"手机号格式错误",
+                maxlength:"手机号格式错误"
+            },
+            txt_yzm:{
+                required:"请填写验证码",
+                minlength:"验证码错误",
+                maxlength:"验证码错误"
+            }
+        },
+        errorPlacement: function(error, element) { //错误信息位置设置方法
+            error.appendTo( element.next() ); //这里的element是录入数据的对象
+        }
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        var ordertime=30;  //设置再次发送验证码等待时间
+        var timeleft=ordertime;
+        var btn=$("#getCode");
+        var phone=$("#phonenum");
+        var ordertime2=30;  //设置再次发送验证码等待时间
+        var timeleft2=ordertime2;
+        var btn2=$("#getCode2");
+        var phone2=$("#phone");
+        var reg = /^1[0-9]{10}$/;  //电话号码的正则匹配式
+        btn.attr("disabled",true);
+        btn2.attr("disabled",true);
+
+        //短信登录验证手机号
+        phone.keyup(function(){
+            var phonenum = phone.val();
+            if (reg.test(phonenum)){
+                $.post("/checkPhone",{"phonenum":phonenum},function(data){
+                    if (data){
+                        if (timeleft == 30) {
+                            btn.removeAttr("disabled")
+                        }
+                    }else{
+                        $("#phoneError").text("该手机号未注册")
+                    }
+                });
+            }
+            else{
+                btn.attr("disabled",true)
+            }
+        });
+
+        //计时函数
+        function timeCount(){
+            timeleft-=1
+            if (timeleft>0){
+                btn.val(timeleft+" 秒后重发");
+                setTimeout(timeCount,1000)
+            }
+            else {
+                btn.val("重新发送");
+                timeleft=ordertime   //重置等待时间
+                btn.removeAttr("disabled");
+            }
+        }
+
+        //事件处理函数
+        btn.on("click",function(){
+            $(this).attr("disabled",true); //防止多次点击
+            var phonenum = phone.val();
+            //此处可添加 ajax请求 向后台发送 获取验证码请求
+            $.ajax({
+                //要用post方式
+                type: "Post",
+                //方法所在页面和方法名
+                url: "/sendSMS",
+                data: {"phonenum":phonenum},
+                success : function(data){
+                    alert("短信发送成功");
+                },
+                error:function(){
+                    alert("短信发送失败");
+                }
+            });
+            timeCount(this);
+        });
+
+        //修改密码验证手机号
+        phone2.keyup(function(){
+            var phonenum = phone2.val();
+            if (reg.test(phonenum)){
+                $.post("/checkPhone",{"phonenum":phonenum},function(data){
+                    if (data){
+                        if (timeleft2 == 30) {
+                            btn2.removeAttr("disabled")
+                        }
+                    }else{
+                        $("#phoneError2").text("该手机号未注册")
+                    }
+                });
+            }
+            else{
+                btn2.attr("disabled",true)
+            }
+        });
+        //计时函数
+        function timeCount2(){
+            timeleft2 = timeleft2 - 1;
+            if (timeleft2>0){
+                btn2.val(timeleft2+" 秒后重发");
+                setTimeout(timeCount2,1000)
+            }
+            else {
+                btn2.val("重新发送");
+                timeleft2=ordertime2;   //重置等待时间
+                btn2.removeAttr("disabled");
+            }
+        }
+
+        //事件处理函数
+        btn2.on("click",function(){
+            $(this).attr("disabled",true); //防止多次点击
+            var phonenum = phone2.val();
+            //此处可添加 ajax请求 向后台发送 获取验证码请求
+            $.ajax({
+                //要用post方式
+                type: "Post",
+                //方法所在页面和方法名
+                url: "/sendSMS",
+                data: {"phonenum":phonenum},
+                success : function(data){
+                    alert("短信发送成功");
+                },
+                error:function(){
+                    alert("短信发送失败");
+                }
+            });
+            timeCount2(this);
+        });
+    });
+
+    function phoneLogin() {
+        var phonenum = $("#phonenum").val();
+        var verifyCode = $("#verifyCode").val();
+        $.post("/phoneLogin",{"phonenum":phonenum,"verifyCode":verifyCode},function(data){
+            if (data == "0"){
+                alert("验证码错误");
+            }else if (data == "1") {
+                window.location = "/index";
+            }else if (data == "2") {
+                alert("登录失败")
+                window.location = "/login";
+            }
+        });
+    }
+
+    function setNewPassword() {
+        var newPassword = $("#newPassword").val();
+        var phone = $("#phone").val();
+        var code = $("#code").val();
+        $.post("/editPassword",{"newPassword":newPassword,"phone":phone,"code":code},function(data){
+            if (data == "0"){
+                alert("验证码错误");
+            }else if (data == "1") {
+                alert("修改成功");
+                window.location .reload();
+            }
+        });
+    }
+</script>
+<script>
+    $("#loginBtn").on("click",function () {
+        var select = $("#selectId").val();
+        if (select == "1") {
+            document.forms.loginForm.action="/userLogin";
+            document.forms.loginForm.submit();
+        }else{
+            document.forms.loginForm.action="/adminLogin";
+            document.forms.loginForm.submit();
+        }
+    })
+</script>
+
+</body>
+</html>

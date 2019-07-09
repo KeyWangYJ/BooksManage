@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>后台管理系统</title>
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript" src="../easyUI/jquery.min.js"></script>
+    <script type="text/javascript" src="../easyUI/jquery.easyui.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="../layui/layui.js"></script>
+    <link rel="stylesheet" type="text/css" href="../easyUI/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../easyUI/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="../layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="../css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="../css/index.css">
+    <link rel="stylesheet" type="text/css" href="../css/admin.css">
+</head>
+<body>
+<div class="layui-side layui-bg-black">
+    <div class="layui-side-scroll">
+        <div title="点击缩放" class="kit-side-fold" style="margin-left: 25%;margin-top: 5%;margin-bottom: 5%;"><i class="fa fa-navicon fa-lg" aria-hidden="true" style="margin-right: 5%;"></i><span>后台管理</span></div>
+        <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+        <ul class="layui-nav layui-nav-tree"  lay-filter="test" lay-shrink="all">
+            <shiro:hasAnyRoles name="superAdmin,userAdmin">
+                <li class="showUser layui-nav-item layui-nav-itemed layui-this" id="user_li">
+                    <a class="layui-anim layui-anim-up"><i class="fa fa-users fa-lg"></i> <span >用户管理</span></a>
+                </li>
+            </shiro:hasAnyRoles>
+            <shiro:hasAnyRoles name="superAdmin,booksAdmin">
+                <li class="showBooks layui-nav-item" id="book_li">
+                    <a class="layui-anim layui-anim-up"><i class="fa fa-book fa-lg"></i> <span >图书管理</span></a>
+                </li>
+            </shiro:hasAnyRoles>
+            <shiro:hasAnyRoles name="superAdmin,booksAdmin">
+                <li class="showLends layui-nav-item" id="lend_li">
+                    <a class="layui-anim layui-anim-up"><i class="fa fa-book fa-lg"></i> <span >借阅记录</span></a>
+                </li>
+            </shiro:hasAnyRoles>
+            <shiro:hasRole name="superAdmin">
+                <li class="showAdmin layui-nav-item" id="admin_li">
+                    <a class="layui-anim layui-anim-up"><i class="fa fa-users fa-lg"></i> <span >权限管理</span></a>
+                </li>
+            </shiro:hasRole>
+        </ul>
+        <shiro:user>
+            <div class="" id="logout_li" style="margin-left: 20px;margin-top: 10px;">
+                <label>欢迎，<shiro:principal property="adminName"/>，</label><a href="/logout" style="color: white">退出</a>
+            </div>
+        </shiro:user>
+    </div>
+</div>
+<div class="body">
+    <div class="info show" id="user_tab">
+        <table id="tab1" toolbar="#user_tool">
+
+        </table>
+    </div>
+    <div id="user_tool">
+        <input type="text" id="searchUser" placeholder="请输入关键字" style="margin-left: 35%;width: 300px;height: 40px;">
+        <button class="layui-btn searchBtn" id="searchUserBtn">搜索</button>
+    </div>
+
+    <div class="info" id="book_tab">
+        <table id="tab2" toolbar="#book_tool">
+
+        </table>
+    </div>
+    <div id="book_tool">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true"  data-toggle="modal" data-target="#addBookModal">添加</a>
+        <input type="text" placeholder="请输入关键字" style="margin-left: 30%;width: 300px;height: 40px;">
+        <button class="layui-btn searchBtn">搜索</button>
+    </div>
+
+    <div class="info" id="lend_tab">
+        <table id="tab3" toolbar="#lend_tool">
+
+        </table>
+    </div>
+    <div id="lend_tool">
+        <input type="text" id="searchLend" placeholder="请输入关键字" style="margin-left: 35%;width: 300px;height: 40px;">
+        <button class="layui-btn searchBtn" id="searchLendBtn">搜索</button>
+    </div>
+
+    <div class="info" id="admin_tab">
+        <table id="tab4" toolbar="#admin_tool">
+
+        </table>
+    </div>
+    <div id="admin_tool">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true"  data-toggle="modal" data-target="#addAdminModal">添加管理员</a>
+        <input type="text" id="searchAdmin" placeholder="请输入关键字" style="margin-left: 25%;width: 300px;height: 40px;">
+        <button class="layui-btn searchBtn" id="searchAdminBtn">搜索</button>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="addBookModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="modifyPerson">添加图书</h4>
+            </div>
+            <div class="modal-body">
+                <form action="/BookAdmin/addBook" class="form-horizontal" role="form" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <div class="col-sm-8">
+                            <input type="file" class="image-file" name="book_image" id="file1" accept="image/gif, image/jpeg, image/png, image/jpg" style="display: none">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookImg" class="col-sm-2 control-label">图片</label>
+                        <div class="col-sm-8" style="width: 80px;height: 120px;">
+                            <img src="" id="bookImg" class="bookImg" onerror="this.src='../images/none.jpg';this.onerror=null" onclick="getPicture1()" style="cursor: pointer;margin-left: 40%;width: 80px;height: 120px;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input2" class="col-sm-2 control-label">书名</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="name" class="form-control" id="input2" placeholder="请输入书名"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input3" class="col-sm-2 control-label">分类</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="classification" class="form-control" id="input3" placeholder="请输入分类"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input4" class="col-sm-2 control-label">添加数量</label>
+                        <div class="col-sm-8">
+                            <h4 id="input4">1</h4>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input5" class="col-sm-2 control-label">馆藏地点</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="location" class="form-control" id="input5" placeholder="请输入馆藏地点"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input6" class="col-sm-2 control-label">作者</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="author" class="form-control" id="input6" placeholder="请输入作者"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input7" class="col-sm-2 control-label">出版社</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="publisher" class="form-control" id="input7" placeholder="请输入出版社"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="input8" class="col-sm-2 control-label">出版时间</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="publishdate" class="form-control" id="input8" placeholder="请输入出版时间"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button id="submitAdd" type="submit" class="btn btn-primary">提交</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modifyBookModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="modifyBook">修改图书信息</h4>
+            </div>
+            <div class="modal-body">
+                <form action="/BookAdmin/updateBookById" class="form-horizontal" role="form" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <div class="col-sm-8">
+                            <input type="file" class="image-file" id="file2" name="img" accept="image/gif, image/jpeg, image/png, image/jpg" style="display: none">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookImg2" class="col-sm-2 control-label">图片</label>
+                        <div class="col-sm-8" style="width: 80px;height: 120px;">
+                            <img src="" id="bookImg2" class="bookImg2" onerror="this.src='../images/none.jpg';this.onerror=null" onclick="getPicture2()" style="cursor: pointer;margin-left: 40%;width: 80px;height: 120px;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookId" class="col-sm-2 control-label">编号</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="bookId" name="id" readonly unselectable="on">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="modify2" class="col-sm-2 control-label">书名</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="name" class="form-control" id="modify2" placeholder="请输入书名"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modify3" class="col-sm-2 control-label">分类</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="classification" class="form-control" id="modify3" placeholder="请输入分类" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="modify4" class="col-sm-2 control-label">总数</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="totalnum" class="form-control" id="modify4" placeholder="请输入总数"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="modify5" class="col-sm-2 control-label">馆藏地点</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="location" class="form-control" id="modify5" placeholder="请输入馆藏地点"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="modify6" class="col-sm-2 control-label">作者</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="author" class="form-control" id="modify6" placeholder="请输入作者"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="modify7" class="col-sm-2 control-label">出版社</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="publisher" class="form-control" id="modify7" placeholder="请输入出版社"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="modify8" class="col-sm-2 control-label">出版时间</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="publishdate" class="form-control" id="modify8" placeholder="请输入出版时间"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button id="submitModify" type="submit" class="btn btn-primary">提交</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="LendBookModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="LendBook">登记借书人信息</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" style="margin-top: 30px;" method="post">
+                    <div class="form-group">
+                        <label for="lendedBook" class="col-sm-2 control-label">图书编号</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="lendedBook" name="lendedBook" readonly unselectable="on">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lend1" class="col-sm-2 control-label">用户账号</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="lend1" name="username" class="form-control" placeholder="请输入用户名">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lend2" class="col-sm-2 control-label">用户密码</label>
+                        <div class="col-sm-8">
+                            <input type="password" name="password" class="form-control" id="lend2" placeholder="请输入密码"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="lend3" class="col-sm-2 control-label">身份证号</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="identitycode" class="form-control" id="lend3" placeholder="请输入身份证号" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button id="submitLend" type="button" class="btn btn-primary" onclick="generateLend()">提交</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modifyAdminModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="modifyAdmin">编辑管理员</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" method="post">
+                    <div class="form-group">
+                        <label for="admin1" class="col-sm-2 control-label">ID</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="name" class="form-control" id="admin1" readonly="true" style="border: 0;"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="admin2" class="col-sm-2 control-label">用户名</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="classification" class="form-control" id="admin2" readonly="true" style="border: 0;"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin3" class="col-sm-2 control-label">所属角色</label>
+                        <div class="col-sm-8">
+                            <select style="height: 30px;" id="admin3">
+                                <option value="userAdmin">用户管理员</option>
+                                <option value="booksAdmin">图书管理员</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button id="submitAdmin" type="button" class="btn btn-primary" onclick="updateAdminRole()">提交</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addAdminModal" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="addAdmin">添加管理员</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" method="post">
+                    <div class="form-group">
+                        <label for="addAdmin1" class="col-sm-2 control-label">用户名</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="adminname" class="form-control" id="addAdmin1"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="addAdmin2" class="col-sm-2 control-label">密码</label>
+                        <div class="col-sm-8">
+                            <input type="password" name="adminpassword" class="form-control" id="addAdmin2"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="addAdmin3" class="col-sm-2 control-label">所属角色</label>
+                        <div class="col-sm-8">
+                            <select style="height: 30px;" id="addAdmin3">
+                                <option value="userAdmin">用户管理员</option>
+                                <option value="booksAdmin">图书管理员</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phonenum" class="col-sm-2 control-label">手机号</label>
+                        <div class="col-sm-5">
+                            <input type="text" name="phonenum" class="form-control" id="phonenum" placeholder="请输入手机号"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <span id="phoneError"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="code" class="col-sm-2 control-label">验证码</label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="code" placeholder="请输入验证码"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="button" name="getCode" class="btn btn-primary" id="getCode" value="获取验证码">
+                        </div>
+                        <div class="col-sm-3">
+                            <span id="codeError"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button id="addNewAdmin" type="button" class="btn btn-primary" onclick="newAdmin()">提交</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use('element', function(){
+        var element = layui.element;
+    });
+
+    $(".layui-nav-tree li").on("click", function (e) {
+        //点击菜单切换右侧内容
+        e.preventDefault();
+        var i=$(this).index();
+        $(".layui-nav-tree li").removeClass("layui-nav-itemed layui-this").eq(i).addClass("layui-nav-itemed layui-this"),
+        $(".body .info").removeClass("show").eq(i).addClass("show");
+    });
+    $(".showBooks").on("click", function (e) {
+        $('#tab2').datagrid("resize");
+    });
+    $(".showLends").on("click", function (e) {
+        $('#tab3').datagrid("resize");
+    });
+    $(".showAdmin").on("click", function (e) {
+        $('#tab4').datagrid("resize");
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        var first_li = $('.layui-nav-tree li').first().attr("id");
+        if (first_li == "book_li"){
+            $("#book_li").addClass("layui-nav-itemed layui-this");
+            $("#user_tab").remove();
+            $("#user_tool").remove();
+            $("#book_tab").addClass("show");
+        }
+
+        var ordertime=30;  //设置再次发送验证码等待时间
+        var timeleft=ordertime;
+        var btn=$("#getCode");
+        var phone=$("#phonenum");
+        var reg = /^1[0-9]{10}$/;  //电话号码的正则匹配式
+        btn.attr("disabled",true);
+
+        //短信登录验证手机号
+        phone.keyup(function(){
+            var phonenum = phone.val();
+            if (reg.test(phonenum)){
+                $.post("/checkPhone",{"phonenum":phonenum},function(data){
+                    if (!data){
+                        if (timeleft == 30) {
+                            btn.removeAttr("disabled")
+                        }
+                    }else{
+                        $("#phoneError").text("该手机号已注册")
+                    }
+                });
+            }
+            else{
+                btn.attr("disabled",true)
+            }
+        });
+
+        //计时函数
+        function timeCount(){
+            timeleft-=1
+            if (timeleft>0){
+                btn.val(timeleft+" 秒后重发");
+                setTimeout(timeCount,1000)
+            }
+            else {
+                btn.val("重新发送");
+                timeleft=ordertime   //重置等待时间
+                btn.removeAttr("disabled");
+            }
+        }
+
+        //事件处理函数
+        btn.on("click",function(){
+            $(this).attr("disabled",true); //防止多次点击
+            var phonenum = phone.val();
+            //此处可添加 ajax请求 向后台发送 获取验证码请求
+            $.ajax({
+                //要用post方式
+                type: "Post",
+                //方法所在页面和方法名
+                url: "/sendSMS",
+                data: {"phonenum":phonenum},
+                success : function(data){
+                    alert("短信发送成功");
+                },
+                error:function(){
+                    alert("短信发送失败");
+                }
+            });
+            timeCount(this);
+        });
+
+        //加载用户表
+        if (first_li == "user_li") {
+            $('#tab1').datagrid({
+                url:'/UserAdmin/getUser',
+                pagination:true,
+                pageSize:10,
+                pageList:[10,20,30],
+                singleSelect:true,
+                fit:true,
+                nowrap:false,
+                columns:[ [
+                    {field:'readername',title:'真实姓名', width:150, align:'center'},
+                    {field:'username',title:'账号', width:150, align:'center'},
+                    {field:'identitycode',title:'身份证号', width:250, align:'center'},
+                    {field:'phonenum',title:'手机号', width:200, align:'center'},
+                    {field:'email',title:'邮箱', width:200, align:'center'},
+                    {field:'operation',title:'操作', width:150, align:'center',
+                        formatter:function(value,row,index){
+                            var b = '<input type="button" name="resetUser" class="layui-btn layui-btn-xs resetUser" value="重置密码" onclick="resetUser(' + row.id + ')">';
+                            var c = '<input type="button" name="deleteUser" class="layui-btn layui-btn-danger layui-btn-xs deleteUser" value="删除" onclick="deleteUser(' + row.id + ')">';
+                            return b+c;
+                        }
+                    }
+                ] ]
+            });
+            var p = $('#tab1').datagrid('getPager');
+            $(p).pagination({
+                beforePageText: '第',
+                afterPageText: '页    共 {pages} 页',
+                displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录'
+            });
+        }
+
+
+
+        //加载图书表
+        $('#tab2').datagrid({
+            url:'/BookAdmin/getBooksByPage',
+            pagination:true,
+            pageSize:4,
+            pageList:[2,4,6],
+            singleSelect:true,
+            fit:true,
+            nowrap:false,
+            columns:[ [
+                {field:'id',title:'图书编号', width:100, align:'center'},
+                {field:'name',title:'书名', width:100, align:'center'},
+                {field:'picture',title:'图片', width:150, align:'center',
+                    formatter:function (value,row,index) {
+                        if (row.picture) {
+                            return "<img style='width:80px;height:120px;margin-top: 4px;margin-bottom: 4px;' src='"+row.picture+"'/>";
+                        }
+                    }},
+                {field:'classification',title:'分类', width:70, align:'center'},
+                {field:'totalnum',title:'总数', width:70, align:'center'},
+                {field:'restnum',title:'可借数量', width:70, align:'center'},
+                {field:'location',title:'位置', width:70, align:'center'},
+                {field:'author',title:'作者', width:70, align:'center'},
+                {field:'publisher',title:'出版社', width:100, align:'center'},
+                {field:'publishdate',title:'出版日期', width:100, align:'center'},
+                {field:'status',title:'状态', width:60, align:'center',
+                    formatter:function (value,row,index) {
+                        switch (value) {
+                            case 0:
+                                return "未借出";
+                                break;
+                            case 1:
+                                return "已借出";
+                                break;
+                        }
+                    }
+                },
+                {field:'operation',title:'操作', width:150, align:'center',
+                    formatter:function(value,row,index){
+                        var a = '<input type="button" name="lend" class="layui-btn layui-btn-xs lend" value="借出" onclick="getSelectedId(' + row.id + ',' + row.status +')">';
+                        var b = '<input type="button" name="modifyBook" class="layui-btn layui-btn-xs modifyBook" value="修改" data-toggle="modal" data-target="#modifyBookModal" onclick="getModifiedBook(' + row.id + ')">';
+                        var c = '<input type="button" name="deleteBook" class="layui-btn layui-btn-danger layui-btn-xs deleteBook" value="删除" onclick="deleteBook(' + row.id + ')">';
+                        return a+b+c;
+                    }
+                }
+            ] ]
+        });
+        var s = $('#tab2').datagrid('getPager');
+        $(s).pagination({
+            beforePageText: '第',
+            afterPageText: '页    共 {pages} 页',
+            displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录'
+        });
+
+
+        $('#tab3').datagrid({
+            url:'/BookAdmin/getAllLend',
+            pagination:true,
+            pageSize:10,
+            pageList:[10,15,20],
+            singleSelect:true,
+            fit:true,
+            nowrap:false,
+            columns:[ [
+                {field:'lendId',title:'借阅记录编号', width:100, align:'center'},
+                {field:'bookId',title:'图书编号', width:70, align:'center'},
+                {field:'bookName',title:'书名', width:100, align:'center'},
+                {field:'userId',title:'用户ID', width:70, align:'center'},
+                {field:'contact',title:'用户联系方式', width:200, align:'center'},
+                {field:'outTime',title:'借出时间', width:150, align:'center'},
+                {field:'deadline',title:'截止归还时间', width:150, align:'center',
+                    styler:function (value,row,index) {
+                        if (row.returnStatus == 0){
+                            var now = new Date();
+                            var deadline = new Date(value);
+                            var d = deadline.getTime() - now.getTime();
+                            var result = Math.floor(d/(24*3600*1000));
+                            if (result < 7) {
+                                return 'background-color:#ffee00;color:red;';
+                            }
+                        }
+                    }},
+                {field:'returnStatus',title:'归还状态', width:100, align:'center',
+                    formatter:function (value,row,index) {
+                        switch (value) {
+                            case 0:
+                                return "未归还";
+                                break;
+                            case 1:
+                                return "已归还";
+                                break;
+                        }
+                    }},
+                {field:'returnTime',title:'归还时间', width:150, align:'center',
+                    formatter:function (value,row,index) {
+                        if (value == null){
+                            var now = new Date();
+                            var deadline = new Date(row.deadline);
+                            var d = deadline.getTime() - now.getTime();
+                            var result = Math.floor(d/(24*3600*1000));
+                            if (result < 7 && result > 0) {
+                                return '<h4 style="color: red;">请督促用户尽快还书</h4>';
+                            } else if (result < 0){
+                                return '<h3 style="color: red;">超出期限！！</h3>';
+                            }
+                        }else {
+                            return value;
+                        }
+                    }},
+                {field:'operatorId',title:'操作者ID', width:70, align:'center'},
+                {field:'operation',title:'操作', width:150, align:'center',
+                    formatter:function(value,row,index){
+                        var  a  =  '<input type="button" class="layui-btn layui-btn-xs returnBook" value="续借" onclick="renew(' + row.lendId + ')">';
+                        var b = '<input type="button" class="layui-btn layui-btn-xs returnBook" value="还书" onclick="returnBook(' + row.lendId + ')">';
+                        var c = '<input type="button" name="deleteLend" class="layui-btn layui-btn-danger layui-btn-xs deleteLend" value="删除" onclick="deleteLend(' + row.lendId + ')">';
+                        if (row.returnStatus == 0) {
+                            return a+b;
+                        }else {
+                            return c;
+                        }
+                    }
+                }
+            ] ]
+        });
+        var s = $('#tab3').datagrid('getPager');
+        $(s).pagination({
+            beforePageText: '第',
+            afterPageText: '页    共 {pages} 页',
+            displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录'
+        });
+
+        $('#tab4').datagrid({
+            url:'/superAdmin/getAdminRolePer',
+            pagination:true,
+            pageSize:4,
+            pageList:[2,4,6],
+            singleSelect:true,
+            fit:true,
+            nowrap:false,
+            columns:[ [
+                {field:'id',title:'管理员ID', width:100, align:'center'},
+                {field:'adminName',title:'用户名', width:200, align:'center'},
+                {field:'rolename',title:'角色', width:200, align:'center',
+                    formatter:function(value,row,index){
+                        switch (value) {
+                            case 'superAdmin':
+                                return "超级管理员";
+                                break;
+                            case 'booksAdmin':
+                                return "图书管理员";
+                                break;
+                            case 'userAdmin':
+                                return "用户管理员";
+                                break;
+                        }
+                    }
+                },
+                {field:'permissionname',title:'权限', width:400, align:'center',
+                    formatter:function(value,row,index){
+                        switch (row.rolename) {
+                            case 'superAdmin':
+                                return "管理图书信息，管理用户信息，管理员角色更改";
+                                break;
+                            case 'booksAdmin':
+                                return "管理图书信息";
+                                break;
+                            case 'userAdmin':
+                                return "管理用户信息";
+                                break;
+                        }
+                    }
+                },
+                {field:'operation',title:'操作', width:150, align:'center',
+                    formatter:function(value,row,index){
+                        var b = '<input type="button" class="layui-btn layui-btn-xs returnBook" value="编辑" data-toggle="modal" data-target="#modifyAdminModal" onclick="modifyAdmin(' + row.id + ',&quot;' + row.adminName + '&quot;,&quot;' + row.rolename + '&quot;)">';
+                        var c = '<input type="button" name="deleteAdmin" class="layui-btn layui-btn-danger layui-btn-xs deleteAdmin" value="删除" onclick="deleteAdmin(' + row.id + ')">';
+                        if (row.rolename != "superAdmin") {
+                            return b+c;
+                        }
+                    }
+                }
+            ] ]
+        });
+        var s = $('#tab4').datagrid('getPager');
+        $(s).pagination({
+            beforePageText: '第',
+            afterPageText: '页    共 {pages} 页',
+            displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录'
+        });
+    })
+</script>
+<script type="text/javascript">
+    //选择图片并预览
+    function getPicture1() {
+        $("#file1").click();
+    }
+
+    function getPicture2() {
+        $("#file2").click();
+    }
+
+    var result = $(".bookImg"); //获得最后图片显示的img
+    var input = $("#file1");
+
+    //检测浏览器是否兼容FileReader因为这个 html5的新特性
+    if (typeof FileReader === 'undefined') {
+        alert("抱歉，你的浏览器不支持 FileReader");
+        input[0].setAttribute('disabled', 'disabled');
+        //这里加个[0]将jquery对象转化成dom对象
+    } else {
+        input.get(0).addEventListener('change', readFile, false);//同上
+    }
+
+    function readFile() {
+        var file = this.files[0];
+        if (!/image\/\w+/.test(file.type)) {
+            alert("文件必须为图片！");
+            return false;
+        }
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (e) {
+            result.attr("src", this.result);
+        }
+    }
+
+    var url =  $(".bookImg")[0].src;
+    $("#bookImg").attr('src',url);
+
+    var result_2 = $(".bookImg2"); //获得最后图片显示的img
+    var input_2 = $("#file2");
+
+    //检测浏览器是否兼容FileReader因为这个 html5的新特性
+    if (typeof FileReader === 'undefined') {
+        alert("抱歉，你的浏览器不支持 FileReader");
+        input_2[0].setAttribute('disabled', 'disabled');
+        //这里加个[0]将jquery对象转化成dom对象
+    } else {
+        input_2.get(0).addEventListener('change', readFile2, false);//同上
+    }
+
+    function readFile2() {
+        var file = this.files[0];
+        if (!/image\/\w+/.test(file.type)) {
+            alert("文件必须为图片！");
+            return false;
+        }
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (e) {
+            result_2.attr("src", this.result);
+        }
+    }
+
+    var url_2 =  $(".bookImg2")[0].src;
+    $("#bookImg2").attr('src',url_2);
+
+</script>
+<script>
+    //删除用户信息
+    function deleteUser(id) {
+        if(confirm('您确定要删除该用户信息吗?')) {
+            $.post("/UserAdmin/deleteUser",{"id":id},function(data){
+                if (data){
+                    alert("用户信息删除成功！");
+                    $("#tab1").datagrid('reload');
+                } else {
+                    alert("用户信息删除失败")
+                }
+            });
+        }
+    }
+
+    //重置用户密码
+    function resetUser(id){
+        if(confirm('您确定要重置该用户密码吗?')) {
+            $.post("/UserAdmin/resetPassword",{"id":id},function(data){
+                if (data){
+                    alert("用户密码重置成功！");
+                    $("#tab1").datagrid('reload');
+                } else {
+                    alert("用户密码重置失败")
+                }
+            });
+        }
+    }
+
+    $("#searchUserBtn").on("click",function () {
+        var BeforeVal = $("#searchUser").val();//获取搜索框的值
+        // 先后去除空格和非数字字母的字符
+        var searchVal = BeforeVal.replace(/\s/g,"").replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g,"");
+        $("#tab1").datagrid('load', {
+            searchVal: searchVal
+        });
+    });
+
+    //根据ID获取图书信息
+    function getModifiedBook(id) {
+        $.ajax({
+            type:"get",
+            url:"/selectBookById",
+            data:{"id":id},
+            success:function(data) {
+                $('#bookImg2').attr('src',data.picture);
+                $('#bookId').val(data.id);
+                $('#modify2').val(data.name);
+                $('#modify3').val(data.classification);
+                $('#modify4').val(data.totalnum);
+                $('#modify5').val(data.location);
+                $('#modify6').val(data.author);
+                $('#modify7').val(data.publisher);
+                $('#modify8').val(data.publishdate);
+            }
+        });
+    }
+
+    //删除图书信息
+    function deleteBook(id) {
+        if(confirm('您确定要删除该图书信息吗?')) {
+            $.post("/BookAdmin/deleteBookById",{"id":id},function(data){
+                if (data == "1"){
+                    alert("图书信息删除成功！");
+                    $("#tab2").datagrid('reload');
+                } else if (data == "2") {
+                    alert("该书尚未归还，不能删除")
+                } else {
+                    alert("图书信息删除失败")
+                }
+            });
+        }
+    }
+
+    //判断是否可借，是则弹出模态框
+    function getSelectedId(id,status){
+        if (status == 1){
+            alert("该书已被借出");
+        } else {
+            $("#lendedBook").val(id);
+            $("#LendBookModal").modal('show');
+        }
+    }
+    //提交用户信息生成借阅记录
+    function generateLend() {
+        var id = $("#lendedBook").val();
+        var username = $("#lend1").val();
+        var password = $("#lend2").val();
+        var identitycode = $("#lend3").val();
+        $.post("/BookAdmin/generateLend",{"id":id,"username":username,"password":password,"identitycode":identitycode},function(data){
+            if (data == "1"){
+                window.location.reload();
+            } else if (data == "2") {
+                alert("账号信息错误");
+            }else if (data == "4") {
+                alert("该书已被借出");
+            }else {
+                alert("借出失败")
+            }
+        });
+    }
+
+    //归还图书
+    function returnBook(id) {
+        if(confirm('您确定要登记归还此书吗?')) {
+            $.post("/BookAdmin/returnBook",{"id":id},function(data){
+                $("#tab3").datagrid('reload');
+                $("#tab2").datagrid('reload');
+            });
+        }
+    }
+
+    //续借图书
+    function renew(id) {
+        if(confirm('您确定要登记续借此书吗?')) {
+            $.post("/BookAdmin/renew",{"id":id},function(data){
+                $("#tab3").datagrid('reload');
+            });
+        }
+    }
+
+    //删除借阅记录
+    function deleteLend(id) {
+        if(confirm('您确定要删除该借阅记录吗?')) {
+            $.post("/deleteLend",{"id":id},function(data){
+                if (data){
+                    alert("借阅记录删除成功！");
+                    $("#tab3").datagrid('reload');
+                } else {
+                    alert("借阅记录删除失败")
+                }
+            });
+        }
+    }
+
+    $("#searchLendBtn").on("click",function () {
+        var BeforeVal = $("#searchLend").val();//获取搜索框的值
+        // 先后去除空格和非数字字母的字符
+        var searchVal = BeforeVal.replace(/\s/g,"").replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g,"");
+        $("#tab3").datagrid('load', {
+            searchVal: searchVal
+        });
+    });
+
+    function newAdmin() {
+        var adminName = $("#addAdmin1").val();
+        var adminPassword = $("#addAdmin2").val();
+        var rolename = $("#addAdmin3").val();
+        var adminPhone = $("#phonenum").val();
+        var code = $("#code").val();
+        $.post("/superAdmin/addAdmin",{"adminName":adminName,"adminPassword":adminPassword,"rolename":rolename,"adminPhone":adminPhone,"code":code},function(data){
+            window.location.reload();
+        });
+    }
+
+    //将管理员信息放至模态框
+    function modifyAdmin(id,adminName,rolename) {
+        $("#admin1").val(id);
+        $("#admin2").val(adminName);
+        $("#admin3").val(rolename);
+    }
+
+    //提交修改后的管理员信息
+    function updateAdminRole() {
+        var id = $("#admin1").val();
+        var rolename = $("#admin3").val();
+        $.post("/superAdmin/updateAdminRole",{"id":id,"rolename":rolename},function(data){
+            window.location.reload();
+        });
+    }
+
+    //删除管理员
+    function deleteAdmin(id) {
+        if(confirm('您确定要删除该管理员吗?')) {
+            $.post("/superAdmin/deleteAdmin",{"id":id},function(data){
+                $("#tab4").datagrid('reload');
+            });
+        }
+    }
+
+    $("#searchAdminBtn").on("click",function () {
+        var BeforeVal = $("#searchAdmin").val();//获取搜索框的值
+        // 先后去除空格和非数字字母的字符
+        var searchVal = BeforeVal.replace(/\s/g,"").replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g,"");
+        $("#tab4").datagrid('load', {
+            searchVal: searchVal
+        });
+    });
+
+</script>
+</body>
+</html>
